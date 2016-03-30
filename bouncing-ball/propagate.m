@@ -1,4 +1,4 @@
-function [x, xt] = propagate(t_km1, t_k, x, varargin)
+function [x, xt, tt] = propagate(t_km1, t_k, x, varargin)
 
 % propagate
 %
@@ -20,6 +20,7 @@ function [x, xt] = propagate(t_km1, t_k, x, varargin)
     
     % Start the trajectory.
     xt = x;
+    tt = t_km1;
 
     % For each minor time step...
     t = t_km1;
@@ -43,6 +44,7 @@ function [x, xt] = propagate(t_km1, t_k, x, varargin)
             % x(2) = x(2) + x(4) * dT - 0.5 * 9.81 * dT^2; % Goes to 0.
             x(4) = -0.95 * (x(4) - g * dT); % Bounce after dT.
             xi   = [x(1) + x(3) * dT; 0; x(3); x(4)];
+            ti   = t - dt + dT;
             dT   = dt - dT; % Time from bounce to the end fo the time step
             x(2) = 0 + x(4) * dT - 0.5 * 9.81 * dT^2; % Bounce up from floor.
             x(4) = x(4) - 9.81 * dT; % Update velocity for remainder of step.
@@ -53,6 +55,7 @@ function [x, xt] = propagate(t_km1, t_k, x, varargin)
             x(2) = x(2) + x(4) * dt - 0.5 * g * dt^2;
             x(4) = x(4) - 9.81 * dt;
             xi   = [];
+            ti   = [];
 
         end
 
@@ -64,6 +67,7 @@ function [x, xt] = propagate(t_km1, t_k, x, varargin)
         % Create the trajectory if necessary.
         if nargout >= 2
             xt = [xt, xi, x]; %#ok<AGROW>
+            tt = [tt, ti, t]; %#ok<AGROW>
         end
         
     end % each minor time step

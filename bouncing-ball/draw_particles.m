@@ -15,30 +15,37 @@ function hso = draw_particles(X, w, xt)
     s = 0.25; % Scaling parameter for velocity arrows
     
     % Make a list of the colors.
-    c = 1 - max(0.9*w/max(w).^0.75, 0.1);
+    c = 1 - max(0.95*w/max(w).^0.85, 0.05);
     
     % Draw the balls.
-    if isempty(hs)
-        hs = scatter(X(1,:), X(2,:), [], c, 'o', 'filled');
+    if isempty(X)
+        if ~isempty(hs)
+            delete(hs);
+            hs = [];
+        end
     else
-        set(hs, 'XData', X(1,:), 'YData', X(2,:), 'CData', c);
+        if isempty(hs)
+            hs = scatter(X(1,:), X(2,:), [], c, 'o', 'filled');
+        else
+            set(hs, 'XData', X(1,:), 'YData', X(2,:), 'CData', c);
+        end
     end
     
-    % Draw the position arrows.
-    if isempty(hv)
-        hv = zeros(1, n);
-        for k = 1:n
-            hv(k) = plot([X(1,k), X(1,k) + s * X(3,k)], ...
-                         [X(2,k), X(2,k) + s * X(4,k)], ...
-                         'Color', c(k) * [1 1 1]);
-        end
-    else
-        for k = 1:n
-            set(hv(k), 'XData', [X(1,k), X(1,k) + s * X(3,k)], ...
-                       'YData', [X(2,k), X(2,k) + s * X(4,k)], ...
-                       'Color', c(k) * [1 1 1]);
-        end
-    end
+%     % Draw the velocity arrows.
+%     if isempty(hv)
+%         hv = zeros(1, n);
+%         for k = 1:n
+%             hv(k) = plot([X(1,k), X(1,k) + s * X(3,k)], ...
+%                          [X(2,k), X(2,k) + s * X(4,k)], ...
+%                          'Color', c(k) * [1 1 1]);
+%         end
+%     else
+%         for k = 1:n
+%             set(hv(k), 'XData', [X(1,k), X(1,k) + s * X(3,k)], ...
+%                        'YData', [X(2,k), X(2,k) + s * X(4,k)], ...
+%                        'Color', c(k) * [1 1 1]);
+%         end
+%     end
     
     [~, ind] = sort(w);
 
