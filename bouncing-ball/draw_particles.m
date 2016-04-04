@@ -1,4 +1,4 @@
-function hso = draw_particles(X, w, xt)
+function [hso, hX] = draw_particles(X, w, xt)
 
     persistent hs hv ht;
     
@@ -72,5 +72,7 @@ function hso = draw_particles(X, w, xt)
     if ~isempty(ht)
         hso = ht(1);
     end
+    
+    hX = hs;
 
 end % draw_particles
