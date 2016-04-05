@@ -13,7 +13,7 @@ function c = covdraw(C, n)
 % Outputs:
 %
 % c    Draws from C (nC-by-n)
-%
+
 % Copyright 2016 An Uncommon Lab
 
     % Defaults

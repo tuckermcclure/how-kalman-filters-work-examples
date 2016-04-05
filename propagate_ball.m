@@ -1,6 +1,6 @@
-function [x, xt, tt] = propagate(t_km1, t_k, x, varargin)
+function [x, xt, tt] = propagate_ball(t_km1, t_k, x, varargin)
 
-% propagate
+% propagate_ball
 %
 % Propagate the ball forward in time by dt, bouncing if necessary.
 %

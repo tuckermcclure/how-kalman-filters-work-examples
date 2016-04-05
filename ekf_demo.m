@@ -8,14 +8,6 @@
 %
 % Copyright 2016 Tucker McClure
 
-%%
-% Make sure the common utilities are on the path.
-added_path = [];
-if ~exist('how-kalman-filters-work-path-id.txt', 'file')
-    added_path = fullfile(pwd, '..', 'common');
-    addpath(added_path);
-end
-
 %% System definition and simulation
 %
 % We'll define the system, set up the filter, and simulate the results over
@@ -227,7 +219,7 @@ axis equal;
 axis(axes_limits);
 
 % Start the animated GIF.
-gif_path       = fullfile('..', 'jade', 'img');
+gif_path       = fullfile('jade', 'img');
 animation_name = '';
 if exist(gif_path, 'dir');
     animation_name = fullfile(gif_path, 'ekf_demo_animation.gif');
@@ -265,10 +257,4 @@ for k = 1:length(t)
         pause(0.01);
     end
     
-end
-
-%%
-% Remove the path iff we added it.
-if ~isempty(added_path)
-    rmpath(added_path);
 end

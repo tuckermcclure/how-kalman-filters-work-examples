@@ -6,7 +6,7 @@ function ell = ellipse(P, x, n)
 % centered at x.
 %
 % An optional number of points, n, can be provided.
-%
+
 % Copyright 2016 An Uncommon Lab
 
     % Set a default number of points.

@@ -8,14 +8,6 @@
 %
 % Copyright 2016 Tucker McClure
 
-%%
-% Make sure the common utilities are on the path.
-added_path = [];
-if ~exist('how-kalman-filters-work-path-id.txt', 'file')
-    added_path = fullfile(pwd, '..', 'common');
-    addpath(added_path);
-end
-
 %% System definition and simulation
 %
 % We'll define the system, set up the filter, and simulate the results over
@@ -155,9 +147,3 @@ if exist('xh_ekf', 'var')
     title('Differences Between EKF and LKF');
 
 end % if EKF results exist
-
-%%
-% Remove the path iff we added it.
-if ~isempty(added_path)
-    rmpath(added_path);
-end
