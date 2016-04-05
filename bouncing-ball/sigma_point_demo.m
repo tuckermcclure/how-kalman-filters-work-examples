@@ -143,7 +143,7 @@ hx = plot(xk(1), xk(2), 'x', 'Color', [0    0.4470    0.7410]);%[0.4660 0.6740 0
 legend([hz hP hxh hx], 'Measurement', '3\sigma boundary', 'Estimate', 'Truth');
 
 % Start the animated GIF.
-animation_name = fullfile('jade', 'img', 'sigma_point_demo_animation.gif');
+animation_name = fullfile('..', 'jade', 'img', 'sigma_point_demo_animation.gif');
 [A, map] = rgb2ind(frame2im(getframe()), 256);
 imwrite(A, map, animation_name, 'gif', 'LoopCount', inf, 'DelayTime', 2);
 

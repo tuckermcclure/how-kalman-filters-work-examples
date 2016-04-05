@@ -182,7 +182,7 @@ axis equal;
 axis([x0(1)-1, x(1,end)+1, 0, x0(2)+1]);
 
 % Start the animated GIF.
-animation_name = fullfile('jade', 'img', 'ekf_demo_animation.gif');
+animation_name = fullfile('..', 'jade', 'img', 'ekf_demo_animation.gif');
 [A, map] = rgb2ind(frame2im(getframe()), 256);
 imwrite(A, map, animation_name, 'gif', 'LoopCount', inf, 'DelayTime', 2);
 

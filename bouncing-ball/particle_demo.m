@@ -128,16 +128,16 @@ chill(0.5);
 
 %% Run out the filter for 10s.
 
+% Truth
+hx = plot(xk(1), xk(2), 'x', 'Color', [0 0.4470 0.7410]);
+axis([-1 11 0 4]);
+
 % Start the animated GIF.
-animation_name = fullfile('jade', 'img', 'particle_demo_animation.gif');
+animation_name = fullfile('..', 'jade', 'img', 'particle_demo_animation.gif');
 [A, map] = rgb2ind(frame2im(getframe()), 256);
 imwrite(A, map, animation_name, 'gif', 'LoopCount', inf, 'DelayTime', 2);
 
-% Truth
-hx = plot(xk(1), xk(2), 'x', 'Color', [0 0.4470 0.7410]);
-
 dt = 0.1;
-axis([-1 11 0 4]);
 for t = 2+dt:dt:10
     
     xk = propagate(t-dt, t, xk);
@@ -151,8 +151,6 @@ for t = 2+dt:dt:10
 
     % Draw everything.
     hXt = draw_particles([], wt, xt); % Particles (w/o velocity arrows)
-%     hm = plot(zk(1), zk(2), 'ro');  % Measured
-%     he = scatter(xh(1), xh(2), 100, [0.05 0.95 0.05], 'o', 'filled'); % Estimated
     set(hz,  'XData', [get(hz, 'XData'), zk(1)], ...
              'YData', [get(hz, 'YData'), zk(2)]);
     set(hxh, 'XData', [get(hxh, 'XData'), xh(1)], ...
@@ -160,7 +158,6 @@ for t = 2+dt:dt:10
     set(hx,  'XData', [get(hx, 'XData'), xk(1)], ...
              'YData', [get(hx, 'YData'), xk(2)]);
 
-%     ht = plot(xk(1), xk(2), 'bo');  % True
     legend([hXt, hz, hxh, hx], 'Particles', 'Measured', 'Estimated', 'Truth');
     
     chill(0.15);
@@ -176,7 +173,7 @@ for t = 2+dt:dt:10
 end
 
 % Plop truth on top of it.
-ht = plot(x(1, :), x(2, :), 'b');
+ht = plot(x(1, :), x(2, :), 'Color', [0 0.4470 0.7410]);
 
 %% Multimodal probability distribution
 
