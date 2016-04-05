@@ -190,3 +190,31 @@ end
 
 % Plop truth on top of it.
 htt = plot(x(1,:), x(2,:), 'Color', [0    0.4470    0.7410]);%[0.4660 0.6740 0.1880]); %[0.4940 0.1840 0.5560]);
+
+%%
+
+% Setup
+clear all; %#ok<CLALL>
+rng(1);
+
+% Calculate the whole true trajectory.
+x0 = [0; 3; 1; 0];
+[~, x] = propagate(0, 2, x0);
+
+bounce = find(x(2,:) == 0, 1);
+slope = diff(x(2,:)) ./ diff(x(1,:));
+dx = 0.3;
+dx1 = [x(1:2,bounce) - dx*[1; slope(bounce-1)], x(1:2,bounce) + 0*dx*[1; slope(bounce-1)]];
+dx2 = [x(1:2,bounce) - 0*dx*[1; slope(bounce)],   x(1:2,bounce) + dx*[1; slope(bounce)]];
+
+% Prepare the figure.
+set(clf(figure(1)), 'Color', [1 1 1]);
+axis equal;
+plot(x(1,:), x(2,:));
+hold on;
+plot(dx1(1,:), dx1(2,:));
+plot(dx2(1,:), dx2(2,:));
+% axis([-1 3 0 5]);
+xlabel('x [m]');
+ylabel('y [m]');
+legend('Trajectory', 'Slope Before Bounce', 'Slope After Bounce');

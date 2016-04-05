@@ -1,146 +1,163 @@
-%% System definition and simulation
+%% Linear Kalman Filter Demonstration
+%
+% This script demonstrates using a linear Kalman filter to determine
+% the position and velocity of a falling package for the article "How
+% Kalman Filters Work".
+%
+% <http://www.anuncommonlab.com/articles/how-kalman-filters-work/>
+%
+% Copyright 2016 Tucker McClure
 
-% cc;
-clc;
+%%
+% Make sure the common utilities are on the path.
+added_path = [];
+if ~exist('how-kalman-filters-work-path-id.txt', 'file')
+    added_path = fullfile(pwd, '..', 'common');
+    addpath(added_path);
+end
+
+%% System definition and simulation
+%
+% We'll define the system, set up the filter, and simulate the results over
+% 10s.
+
+% Set the random number generator seed so that this is repeatable.
 rng(8);
 
-% System
-dt = 0.1;
-cd = 4.4;
-m  = 1;
-Fa = [0.5*dt^2 * eye(2); dt * eye(2)];
-Q  = 0.5^2 * eye(2);
-Qe = Fa * Q * Fa.';
-R  = 0.25^2 * eye(2);
-g  = [0; -9.81];
+% Define the true system.
+dt = 0.1;        % Time step [s]
+cd = 4.4;        % Coefficient of drag, so that F_d = -cd * norm(v) * v;
+m  = 1;          % Mass [kg]
+g  = [0; -9.81]; % Gravity [m/s^2]
+
+% Define the continuous-time dynamics, x_dot = f(x).
 fc = @(t, x, q) [x(3:4); g - cd/m * norm(x(3:4)) * x(3:4) + q];
-f  = @(x, q) rk4step(fc, 0, x, dt, q);
-vt = sqrt(9.81 / cd);
-xn = [0; 0; 0; -vt];
+
+% Define a function to update the state by 1 time step with the given
+% process noise. When the filter uses this, the process noise will
+% naturally be [0; 0].
+f = @(x, q) rk4step(fc, 0, x, dt, q);
+
+% Define the process and measurement noise.
+Q  = 0.5^2 * eye(2);  % Acceleration noise, 0.5m/s^2 std. dev.
+R  = 0.25^2 * eye(2); % 0.25m standard deviation
 
 % Initial conditions
-x0  = [-1; 8; 1; 0];
-P0  = bdiag(R, 1^2 * eye(2));
-z0  = x0(1:2) + mnddraw(R);
-xh0 = [z0; x0(3:4) + mnddraw(P0(3:4,3:4))];
+x0  = [-1; 8; 1; 0];            % True state [m; m; m/s; m/s]
+z0  = x0(1:2) + covdraw(R);     % Initial measurement [m; m]
 
-% Create the filter options.
-A  = [zeros(2), eye(2); zeros(2), -cd/m*vt * eye(2)];
-% B  = [zeros(2); 0*eye(2)];
-% Ab = [A B; zeros(2, 6)];
-% Fb = expm(Ab*dt);
-% F  = Fb(1:4,1:4);
-% Fu = Fb(1:4, 5:6);
-F  = expm(A*dt);
-u  = f(xn, [0; 0]) - xn;
+% The initial estimate of position will come directly from the first
+% measurement, so the corresponding part of the initial covariance will
+% have the same covariance as the measurement (R).
+P0  = blkdiag(R, 1^2 * eye(2));
+
+% The initial estimate is the initial measurement and a random velocity
+% error drawn from the initial covariance (just to make things
+% interesting).
+xh0 = [z0; x0(3:4) + covdraw(P0(3:4,3:4))]; % Initial estimate
+
+% We'll linearize around a nominal state that's at terminal velocity.
+vt = sqrt(9.81/cd);
+xn = [0; 0; 0; -vt];
+
+% Create the discrete state transition matrix from the continuous-time
+% dynamics of the error state.
+A  = [zeros(2), eye(2); zeros(2), -cd/m*vt * eye(2)]; % Continuous
+F  = expm(A*dt);                                      % Discrete
+
+% Create the observation matrix.
 H  = [eye(2), zeros(2)];
-% ff = @(~, ~, x, u) F * x + Fu * u;
-ff = @(~, ~, x, u) F * x + u;
-hf = @(~, x, ~) H * x;
-options = kffoptions('f', ff, ...
-                     'F_km1_fcn', F, ...
-                     'Q_km1_fcn', Qe, ...
-                     'h', hf, ...
-                     'H_k_fcn', H, ...
-                     'R_k_fcn', R);
+
+% Create the constant input vector.
+u  = f(xn, [0; 0]) - xn;
+Fu = eye(4);
+Hu = zeros(2, 4);
+
+% Create the effective process noise for the filter (the effect of the
+% process noise [acceleration] on the state update).
+Fa = [0.5*dt^2 * eye(2); ... % Map acceleration to state
+      dt * eye(2)];
+Qe = Fa * Q * Fa.';          % Effective process noise matrix
 
 % Create the true trajectory, measurements, and estimates.
-t  = 0:dt:5;
-n  = length(t);
-x  = [x0, zeros(4, n-1)];
-q  = mnddraw(Q, n-1);
-z  = [z0, zeros(2, n-1)];
-r  = mnddraw(R, n);
-xh = [xh0, zeros(4, n-1)];
-P  = cat(3, P0, zeros(4, 4, n-1));
+t  = 0:dt:5;               % Time history
+n  = length(t);            % Number of steps to take
+x  = [x0, zeros(4, n-1)];  % True state history
+q  = covdraw(Q, n-1);      % Process noise history (drawn up front)
+z  = [z0, zeros(2, n-1)];  % Preallocation for the measurements
+r  = covdraw(R, n);        % Measurement error history (drawn up front)
+xh = [xh0, zeros(4, n-1)]; % Preallocation for the estimate history
+P  = cat(3, P0, zeros(4, 4, n-1)); % Preallocation for the covariance
+
+% Simulate the truth, create the noisy measurements, and run the filter for
+% each step.
 for k = 2:n
     x(:,k) = f(x(:,k-1), q(:,k-1));
     z(:,k) = x(1:2,k) + r(:,k);
-    [xh(:,k), P(:,:,k)] = kff(xh(:,k-1) - xn, P(:,:,k-1), u, z(:,k), options);
-    xh(:,k) = xh(:,k) + xn;
+    dx = xh(:,k-1) - xn; % Create the error state.
+    [dx, P(:,:,k)] = lkf(dx, P(:,:,k-1), u, z(:,k), F, Fu, H, Hu, Qe, R);
+    xh(:,k) = dx + xn;   % Rebuild the full state from the error state.
 end
 
-% Tools to draw ellipses
-circle  = feval(@(a) [cos(a); sin(a)], linspace(0, 2*pi, 100));
-ellipse = @(P,x) bsxfun(@plus, 3 * chol(P(1:2,1:2), 'lower') * circle, x(1:2));
-
-% Record the results with names for comparison to the EKF.
-x_lkf = x; xh_lkf = xh;
+% Record the results with names for comparison to the EKF (run ekf_demo.m
+% before this to compare with its results).
+x_lkf  = x;
+xh_lkf = xh;
 
 %% Final plots
 
-% % Draw the truth, measurements, and estimates as line plots.
-% clf(figure(1));
-% for k = 1:4
-%     subplot(4, 1, k);
-%     args = {t, x(k,:), ...
-%             t, xh(k,:), ':'};
-%     if k <= 2
-%         args = [args, {t, z(k,:), '.'}]; %#ok<AGROW>
-%     end
-%     plot(args{:});
-% end
-
 % Show the trajectory plot.
 ell0 = ellipse(P0, xh0);
+ell = ellipse(P(:,:,end), xh(:,end));
 set(clf(figure(2)), 'Color', [1 1 1]);
 ht = plot(x(1,:),    x(2,:), ...
           z(1,:),    z(2,:),  '.', ...
           xh(1,:),   xh(2,:), 'o', ...
-          ell0(1,:), ell0(2,:));
+          ell(1,:), ell(2,:));
 set(ht(3:4), 'Color', 0.75 * [1 1 1]);
 axis equal;
 axis([x0(1)-1, x(1,end)+1, 0, x0(2)+1]);
 
-% % Animate the descent.
-% tic();
-% for k = 1:length(t)
-%     ell = ellipse(P(:,:,k), xh(:,k));
-%     set(ht(1), 'XData', x(1,1:k),  'YData', x(2,1:k));
-%     set(ht(2), 'XData', z(1,1:k),  'YData', z(2,1:k));
-%     set(ht(3), 'XData', xh(1,1:k), 'YData', xh(2,1:k));
-%     set(ht(4), 'XData', ell(1,:),  'YData', ell(2,:));
-%     while toc() < t(k)
-%         pause(0.01);
-%     end
-% end
-
-% Skip the animation; it looks the same.
-ell = ellipse(P(:,:,end), xh(:,end));
-set(ht(4), 'XData', ell(1,:),  'YData', ell(2,:));
-
 %% Comparison
+%
+% Compare the results with the EKF (if its results are in the workspace).
 
-% States
-clf(figure(1));
-for k = 1:4
-    subplot(4, 1, k);
-    args = {t, x(k,:), ...
-            t, xh_ekf(k,:), '--', ...
-            t, xh_lkf(k,:), '--'};
-    if k <= 2
-        args = [args, {t, z(k,:), '.'}]; %#ok<AGROW>
+if exist('xh_ekf', 'var')
+
+    % States
+    clf(figure(1));
+    for k = 1:4
+        subplot(4, 1, k);
+        args = {t, x(k,:), ...
+                t, xh_ekf(k,:), '--', ...
+                t, xh_lkf(k,:), '--'};
+        if k <= 2
+            args = [args, {t, z(k,:), '.'}]; %#ok<AGROW>
+        end
+        plot(args{:});
+        ylabel(sprintf('State %d', k));
     end
-    plot(args{:});
-    ylabel(sprintf('State %d', k));
-end
-xlabel('Time (s)');
-subplot(4, 1, 1);
-title('States over Time')
-legend('Truth', 'EKF', 'LKF', 'Measurements');
+    xlabel('Time (s)');
+    subplot(4, 1, 1);
+    title('States over Time')
+    legend('Truth', 'EKF', 'LKF', 'Measurements');
 
-% Errors
-clf(figure(3));
-for k = 1:4
-    subplot(4, 1, k);
-    args = {t, xh_ekf(k,:) - xh_lkf(k,:)};
-%     if k <= 2
-%         args = [args, {t, z(k,:) - x(k,:), '.'}]; %#ok<AGROW>
-%     end
-    plot(args{:});
-    ylabel(sprintf('State %d', k));
+    % Errors
+    clf(figure(3));
+    for k = 1:4
+        subplot(4, 1, k);
+        args = {t, xh_ekf(k,:) - xh_lkf(k,:)};
+        plot(args{:});
+        ylabel(sprintf('State %d', k));
+    end
+    xlabel('Time (s)');
+    subplot(4, 1, 1);
+    title('Differences Between EKF and LKF');
+
+end % if EKF results exist
+
+%%
+% Remove the path iff we added it.
+if ~isempty(added_path)
+    rmpath(added_path);
 end
-xlabel('Time (s)');
-subplot(4, 1, 1);
-title('Differences Between EKF and LKF');
-% legend('EKF - LKF', 'Meas. - Truth');
