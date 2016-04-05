@@ -136,9 +136,17 @@ function [x_hat_k, X_k, w_k, w_kkm1] = bf( ...
         X_twiddle_k = bsxfun(@minus, X_k, sum(X_k, 2)/N);
         Sigma       = 1/(N-1) * (X_twiddle_k * X_twiddle_k.');
         
+%         % Alternately, we could have used the weights instead of the
+%         % newly selected particles. The expected result is the same; the
+%         % actual result may be slightly different.
+%         X_twiddle_k = bsxfun(@minus, X_kkm1, x_hat_k);
+%         X_twiddle_k = bsxfun(@times, X_twiddle_k, sqrt(w_kkm1));
+%         Sigma       = X_twiddle_k * X_twiddle_k.';
+        
         % Multiply those perturbations by the tuning parameter and add them
         % to the particles.
-        X_k = X_k + h_tune * sqrtpsdm(Sigma) * randn(nx, N);
+        [u, s] = svd(Sigma);
+        X_k    = X_k + h_tune * u * sqrt(s) * randn(nx, N);
         
     % Otherwise, use the updated values.
     else
@@ -166,7 +174,7 @@ function indices = pmfdraw(p, n)
     % Make a bunch of normal, uniform random draws and sort them.
     draws = sort(rand(1, n));
     
-    % Find the cdf "bin" containing each draw. This will be the appropriate
+    % Find the CDF "bin" containing each draw. This will be the appropriate
     % index of the CDF.
     np      = length(p);
     indices = zeros(1, n);  % Output randomly drawn indices

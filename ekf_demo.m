@@ -6,14 +6,50 @@
 %
 % <http://www.anuncommonlab.com/articles/how-kalman-filters-work/>
 %
-% Copyright 2016 Tucker McClure
+% Copyright 2016 Tucker McClure @ An Uncommon Lab
+
+%% Show the ambiguity of slope near the bounce.
+%
+% First, let's show that an EKF won't work on the ball problem (without
+% some modifications) because the slope (and therefore the Jacobian) is
+% undefined across the bounce.
+
+% Run the ball simulation for a couple of seconds.
+x0 = [0; 3; 1; 0];
+[~, x, t] = propagate_ball(0, 2, x0);
+
+% Find the index of the bounce.
+bounce = find(x(2,:) == 0, 1);
+
+% Create the dy/dt.
+slope = diff(x(2,:)) ./ diff(x(1,:));
+
+% Create lines corresponding to the slope before and after the bounce.
+Dt  = 0.3;
+dy1 = [-Dt * slope(bounce-1), 0];
+dy2 = [0, Dt * slope(bounce)];
+
+% Plot it.
+set(clf(figure(2)));
+axis equal;
+plot(x(1,1:2*bounce), x(2,1:2*bounce));
+hold on;
+plot(t(bounce) + [-Dt, 0], dy1);
+plot(t(bounce) + [0, Dt],  dy2);
+xlabel('Time [s]');
+ylabel('Height [m]');
+legend('Trajectory', 'Slope Before Bounce', 'Slope After Bounce', ...
+       'Location', 'southeast');
 
 %% System definition and simulation
 %
-% We'll define the system, set up the filter, and simulate the results over
-% 10s.
+% Instead of the bouncing ball, we'll use a parachuting package of coffee 
+% filters instead. Let's define the system, set up the filter, and simulate
+% the results over 10s.
 
-% Set the random number generator seed so that this is repeatable.
+% Set the random number generator seed so the results are the same every
+% time we run the script. (Comment out this line to see different results
+% every time.)
 rng(8);
 
 % Define the true system.
@@ -31,8 +67,8 @@ fc = @(t, x, q) [x(3:4); g - cd/m * norm(x(3:4)) * x(3:4) + q];
 f = @(x, q) rk4step(fc, 0, x, dt, q);
 
 % Define the process and measurement noise.
-Q  = 0.5^2 * eye(2);  % Acceleration noise, 0.5m/s^2 std. dev.
-R  = 0.25^2 * eye(2); % 0.25m standard deviation
+Q = 0.5^2 * eye(2);  % Acceleration noise, 0.5m/s^2 std. dev.
+R = 0.5^2 * eye(2);  % 0.5m standard deviation
 
 % Initial conditions
 x0  = [-1; 8; 1; 0];            % True state [m; m; m/s; m/s]
@@ -41,7 +77,7 @@ z0  = x0(1:2) + covdraw(R);     % Initial measurement [m; m]
 % The initial estimate of position will come directly from the first
 % measurement, so the corresponding part of the initial covariance will
 % have the same covariance as the measurement (R).
-P0  = blkdiag(R, 1^2 * eye(2));
+P0  = blkdiag(R, 2^2 * eye(2));
 
 % The initial estimate is the initial measurement and a random velocity
 % error drawn from the initial covariance (just to make things
@@ -257,4 +293,4 @@ for k = 1:length(t)
         pause(0.01);
     end
     
-end
+end % animation loop

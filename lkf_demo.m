@@ -6,14 +6,16 @@
 %
 % <http://www.anuncommonlab.com/articles/how-kalman-filters-work/>
 %
-% Copyright 2016 Tucker McClure
+% Copyright 2016 Tucker McClure @ An Uncommon Lab
 
 %% System definition and simulation
 %
 % We'll define the system, set up the filter, and simulate the results over
 % 10s.
 
-% Set the random number generator seed so that this is repeatable.
+% Set the random number generator seed so the results are the same every
+% time we run the script. (Comment out this line to see different results
+% every time.)
 rng(8);
 
 % Define the true system.
@@ -32,7 +34,7 @@ f = @(x, q) rk4step(fc, 0, x, dt, q);
 
 % Define the process and measurement noise.
 Q  = 0.5^2 * eye(2);  % Acceleration noise, 0.5m/s^2 std. dev.
-R  = 0.25^2 * eye(2); % 0.25m standard deviation
+R  = 0.5^2 * eye(2);  % 0.5m standard deviation
 
 % Initial conditions
 x0  = [-1; 8; 1; 0];            % True state [m; m; m/s; m/s]
@@ -41,7 +43,7 @@ z0  = x0(1:2) + covdraw(R);     % Initial measurement [m; m]
 % The initial estimate of position will come directly from the first
 % measurement, so the corresponding part of the initial covariance will
 % have the same covariance as the measurement (R).
-P0  = blkdiag(R, 1^2 * eye(2));
+P0  = blkdiag(R, 2^2 * eye(2));
 
 % The initial estimate is the initial measurement and a random velocity
 % error drawn from the initial covariance (just to make things

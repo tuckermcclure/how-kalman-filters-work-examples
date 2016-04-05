@@ -1,7 +1,8 @@
-function [x, P] = ukf(t_km1, t_k, x, P, u_km1, z_k, ...
-                      f, h, Q_km1, R_k, ...
-                      alpha, beta, kappa, ...
-                      varargin)
+function [x, P, x_kkm1, P_kkm1, P_xz, P_zz, K] = ukf( ...
+    t_km1, t_k, x, P, u_km1, z_k, ...
+    f, h, Q_km1, R_k, ...
+    alpha, beta, kappa, ...
+    varargin)
 
 % ukf
 %
@@ -42,7 +43,7 @@ function [x, P] = ukf(t_km1, t_k, x, P, u_km1, z_k, ...
 %
 % Q_km1    Pocess noise covariance at sample k-1
 % R_k      Measurement noise covariance at sample k
-% alpha    Optional turning parameter, often 0.001
+% alpha    Optional turning parameter (e.g., 0.001)
 % beta     Optional tuning parameter, with 2 being optimal for Gaussian
 %          estimation error
 % kappa    Optional tuning parameter, often 3 - |nx|, where |nx| is the
@@ -86,10 +87,12 @@ function [x, P] = ukf(t_km1, t_k, x, P, u_km1, z_k, ...
 
     % Create the augmented system.
     P_a     = blkdiag(P, Q_km1, R_k);
-    x_a_km1 = [x; zeros(nc, 1); zeros(nq, 1); zeros(nz, 1)];
+    x_a_km1 = [x; zeros(nq, 1); zeros(nz, 1)];
     
-    % Create the sigma points.
-    gamma_sqrt_P_a = gamma * sqrtpsdm(P_a);
+    % Create the sigma points. (We use svd instead of chol in case there's
+    % a 0 eigenvalue.)
+    [u, s] = svd(P_a);
+    gamma_sqrt_P_a = gamma * u * sqrt(s);
     X_a_km1 = [x_a_km1, ...
                repmat(x_a_km1, 1, L) + gamma_sqrt_P_a, ...
                repmat(x_a_km1, 1, L) - gamma_sqrt_P_a];
@@ -98,16 +101,16 @@ function [x, P] = ukf(t_km1, t_k, x, P, u_km1, z_k, ...
     Z_kkm1   = zeros(nz, ns);
     X_x_kkm1 = zeros(nx, ns);
     for sp = 1:ns
-        X_x_kkm1(:, sp) = f(t_km1, t_k, ...           % Times
-                            X_a_km1(1:nx, sp), ...             % State k-1
-                            u_km1, ...                         % Input
-                            X_a_km1(nx+1:nx+nq, sp), ...       % Proc. noise
-                            varargin{:});                      % Et al.
-        Z_kkm1(:, sp)   = h(t_k, ...                      % Time k
-                            X_x_kkm1(:, sp), ...               % State k|k-1
-                            u_km1, ...                         % Input
-                            X_a_km1(nx+nq+1:nx+nq+nz, sp), ... % Noise
-                            varargin{:});                      % Et al.
+        X_x_kkm1(:, sp) = f(t_km1, t_k, ...              % Times
+                            X_a_km1(1:nx, sp), ...       % State k-1
+                            u_km1, ...                   % Input
+                            X_a_km1(nx+1:nx+nq, sp), ... % Proc. noise
+                            varargin{:});                % Et al.
+        Z_kkm1(:, sp)   = h(t_k, ...                     % Time k
+                            X_x_kkm1(:, sp), ...              % State k|k-1
+                            u_km1, ...                        % Input
+                            X_a_km1(nx+nq+1:nx+nq+nz, sp), ...% Meas. noise
+                            varargin{:});                     % Et al.
     end
     
     % Expected prediction and measurement

@@ -12,7 +12,7 @@ function [hso, hX] = draw_particles(X, w, xt)
 
     % Constants
     n = size(X, 2);
-    s = 0.25; % Scaling parameter for velocity arrows
+%     s = 0.25; % Scaling parameter for velocity arrows
     
     % Make a list of the colors.
     c = 1 - max(0.95*w/max(w).^0.85, 0.05);
