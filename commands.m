@@ -1,14 +1,28 @@
-%%
-enjaden('particle_demo.m', '../jade', [], true, []);
+%% Commands for Image Generation
+%
+% These commands are used to generate the images used in the "How Kalman
+% Filters Work" article. They use 'enjaden', an open-source project for
+% publishing MATLAB scripts to Jade syntax (a web language).
+%
+% This file is not itself part of the demonstration.
 
 %%
-enjaden('sigma_point_demo.m', '../jade', [], true, []);
+delete('jade/img/particle*');
+enjaden('particle_demo.m', 'jade', [], true, []);
 
 %%
-enjaden('ekf_demo.m', '../jade', [], true, []);
+delete('jade/img/sigma_point*');
+enjaden('sigma_point_demo.m', 'jade', [], true, []);
 
 %%
-enjaden('lkf_demo.m', '../jade', [], true, []);
+delete('jade/img/ekf*');
+enjaden('ekf_demo.m', 'jade', [], true, []);
 
 %%
-copyfile('../jade/img/*', '../../anuncommonlab.com/public/articles/how-kalman-filters-work/img/');
+delete('jade/img/lkf*');
+enjaden('lkf_demo.m', 'jade', [], true, []);
+
+%%
+target = '../anuncommonlab.com/public/articles/how-kalman-filters-work/img/';
+copyfile('jade/img/*', target);
+copyfile('animations/*.gif', target);

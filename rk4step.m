@@ -1,4 +1,4 @@
-function x_kp1 = rk4step(f, t_k, x_k, dt, varargin)
+function x_k = rk4step(f, t_km1, x_km1, dt, varargin)
 
 % rk4step
 %
@@ -7,26 +7,26 @@ function x_kp1 = rk4step(f, t_k, x_k, dt, varargin)
 %
 % Inputs:
 %
-% f     Function handle taking time, state, and any additional arguments
-%       and returning state time rateof change:
+% f      Function handle taking time, state, and any additional arguments
+%        and returning state time rateof change:
 %
-%          x_dot = f(t, x, ...)
+%           x_dot = f(t, x, ...)
 % 
-% t_k   Time at sample k
-% x_k   State at sample k
-% dt    Time step from sample k to k+1
+% t_km1  Time at sample k-1
+% x_km1  State at sample k-1
+% dt     Time step from sample k-1 to k
 %
 % Outputs:
 %
-% x_kp1 State at sample k+1
+% x_kp1  State at sample k
 %
 % Copyright 2016 An Uncommon Lab
 
     % Use RK4 to propagate.
-    d1    = f(t_k,          x_k,             varargin{:});
-    d2    = f(t_k + 0.5*dt, x_k + 0.5*dt*d1, varargin{:});
-    d3    = f(t_k + 0.5*dt, x_k + 0.5*dt*d2, varargin{:});
-    d4    = f(t_k +     dt, x_k +     dt*d3, varargin{:});
-    x_kp1 = x_k + dt/6*(d1 + 2*d2 + 2*d3 + d4);
+    d1    = f(t_km1,          x_km1,             varargin{:});
+    d2    = f(t_km1 + 0.5*dt, x_km1 + 0.5*dt*d1, varargin{:});
+    d3    = f(t_km1 + 0.5*dt, x_km1 + 0.5*dt*d2, varargin{:});
+    d4    = f(t_km1 +     dt, x_km1 +     dt*d3, varargin{:});
+    x_k = x_km1 + dt/6*(d1 + 2*d2 + 2*d3 + d4);
 
 end % rk4step

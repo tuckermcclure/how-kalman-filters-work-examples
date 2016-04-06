@@ -203,10 +203,9 @@ hx = plot(xk(1), xk(2), 'x', 'Color', [0 0.4470 0.7410]);
 legend([hz hX hxh hx], 'Measurements', 'Particles', 'Estimated', 'Truth');
 
 % Start the animated GIF.
-gif_path       = fullfile('jade', 'img');
-animation_name = '';
-if exist(gif_path, 'dir');
-    animation_name = fullfile(gif_path, 'particle_demo_animation.gif');
+make_gif = true;
+if make_gif
+    animation_name = fullfile('animations', 'particle_demo_animation.gif');
     [A, map] = rgb2ind(frame2im(getframe()), 256);
     imwrite(A, map, animation_name, 'gif', ...
             'LoopCount', inf, ...
@@ -253,7 +252,7 @@ for tk = tk+dt:dt:10
              'YData', [get(hx, 'YData') xk(2)]);
 
     % Add to the animated GIF.
-    if ~isempty(animation_name)
+    if make_gif
         [A, map] = rgb2ind(frame2im(getframe()), 256);
         delay = dt;
         if tk == 10

@@ -56,7 +56,7 @@ function [x, P, x_kkm1, P_kkm1, P_xz, P_zz, K] = ukf( ...
 % x        Upated estimate at sample k
 % P        Updated estimate covariance at sample k
 % 
-% Reference
+% Reference:
 %
 % Wan, Eric A. and Rudoph van der Merwe. "The Unscented Kalman Filter."
 % _Kalman Filtering and Neural Networks._ Ed. Simon Haykin. New York: John

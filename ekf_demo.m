@@ -30,7 +30,7 @@ dy1 = [-Dt * slope(bounce-1), 0];
 dy2 = [0, Dt * slope(bounce)];
 
 % Plot it.
-set(clf(figure(2)));
+clf(figure(2));
 axis equal;
 plot(x(1,1:2*bounce), x(2,1:2*bounce));
 hold on;
@@ -173,7 +173,7 @@ clf(figure(1));
 % Show the initial estimate.
 hxh = plot(xh0(1), xh0(2), 'o', 'Color', 0.75 * [1 1 1]);
 axis equal;
-axis([xh0(1)-1 xh0(1)+1 xh0(2)-1 xh0(2)+1]);
+axis([xh0(1)-2 xh0(1)+2 xh0(2)-2 xh0(2)+2]);
 
 % Add on the initial measurement and uncertainty.
 hold on;
@@ -255,10 +255,9 @@ axis equal;
 axis(axes_limits);
 
 % Start the animated GIF.
-gif_path       = fullfile('jade', 'img');
-animation_name = '';
-if exist(gif_path, 'dir');
-    animation_name = fullfile(gif_path, 'ekf_demo_animation.gif');
+make_gif = true;
+if make_gif
+    animation_name = fullfile('animations', 'ekf_demo_animation.gif');
     [A, map] = rgb2ind(frame2im(getframe()), 256);
     imwrite(A, map, animation_name, 'gif', ...
             'LoopCount', inf, ...
@@ -277,7 +276,7 @@ for k = 1:length(t)
     set(ht(4), 'XData', ell(1,:),  'YData', ell(2,:));
     
     % Add to the animated GIF.
-    if ~isempty(animation_name)
+    if make_gif
         [A, map] = rgb2ind(frame2im(getframe()), 256);
         delay = dt;
         if k == length(t) % On the last frame, delay a while.
