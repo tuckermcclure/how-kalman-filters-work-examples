@@ -22,7 +22,7 @@ enjaden('ekf_demo.m', 'jade', [], true, []);
 delete('jade/img/lkf*');
 enjaden('lkf_demo.m', 'jade', [], true, []);
 
-%%
+%% Deploy generated files.
 target = '../anuncommonlab.com/public/articles/how-kalman-filters-work/img/';
 copyfile('jade/img/*', target);
 copyfile('animations/*.gif', target);

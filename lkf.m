@@ -21,6 +21,7 @@ function [x_hat, P] = lkf(x_hat, P, u, z, F, F_u, H, H_u, Q, R)
 %
 % x_hat    Estimate at sample k
 % P        Estimate covariance matrix at sample k
+% 
 
 % Copyright 2016 An Uncommon Lab
 

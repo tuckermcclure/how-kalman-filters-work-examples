@@ -2,13 +2,13 @@ function x_k = rk4step(f, t_km1, x_km1, dt, varargin)
 
 % rk4step
 %
-% Runs a single step of the fourth order Runge-Kutta numerical integration
-% method.
+% Runs a single step of the common fourth order Runge-Kutta numerical
+% integration method.
 %
 % Inputs:
 %
 % f      Function handle taking time, state, and any additional arguments
-%        and returning state time rateof change:
+%        and returning state time rate of change:
 %
 %           x_dot = f(t, x, ...)
 % 
@@ -18,9 +18,12 @@ function x_k = rk4step(f, t_km1, x_km1, dt, varargin)
 %
 % Outputs:
 %
-% x_kp1  State at sample k
+% x_k    State at sample k
 %
+
 % Copyright 2016 An Uncommon Lab
+
+%#codegen
 
     % Use RK4 to propagate.
     d1    = f(t_km1,          x_km1,             varargin{:});

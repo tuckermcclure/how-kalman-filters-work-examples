@@ -8,12 +8,13 @@ function p = mndpdf(x, X)
 % Inputs:
 %
 % x   Matrix whose columns are the vector locations of each point at which
-%     to evalaute the PDF
-% X   Covariance matrix of the distribution; must be positive-definite.
+%     to evalaute the PDF (nx-by-n)
+% X   Covariance matrix of the distribution (strictly positive-definite)
+%     (nx-by-nx)
 %
 % Outputs:
 %
-% p   Probability density at each point of |x|
+% p   Probability density at each point (1-by-n)
 % 
 
 % Copyright 2016 An Uncommon Lab

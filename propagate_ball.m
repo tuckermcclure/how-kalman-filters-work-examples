@@ -70,7 +70,10 @@ function [x, xt, tt] = propagate_ball(t_km1, t_k, x, varargin)
             ti   = [];
 
         end
-
+        
+        % We don't check for a second bounce on a time step. We could, but
+        % it wouldn't matter for this example.
+        
         % Updating the x direction is trivial and the same regardless of
         % bounce.
         x(1) = x(1) + x(3) * dt;

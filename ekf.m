@@ -1,4 +1,5 @@
-function [x_hat, P] = ekf(t_km1, t_k, x_hat, P, u, z, f, h, F_fcn, H_fcn, Q, R)
+function [x_hat, P] = ekf(t_km1, t_k, x_hat, P, u, z, ...
+                          f, h, F_fcn, H_fcn, Q, R)
 
 % ekf
 % 
@@ -38,6 +39,7 @@ function [x_hat, P] = ekf(t_km1, t_k, x_hat, P, u, z, f, h, F_fcn, H_fcn, Q, R)
 %
 % x_hat    Estimate at sample k
 % P        Estimate covariance matrix at sample k
+% 
 
 % Copyright 2016 An Uncommon Lab
 
