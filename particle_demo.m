@@ -42,8 +42,8 @@ colormap('gray');
 axis equal;
 axis([-1 11 0 5]);
 caxis([0 1]);
-xlabel('x [m]');
-ylabel('y [m]');
+xlabel('Right [m]');
+ylabel('Up [m]');
 hold on;
 
 % Add the initial particles.
@@ -77,6 +77,7 @@ for k = 1:nX
     ht(k) = plot(xt{k}(1,:), xt{k}(2,:), 'Color', line_colors(k,:));
 end
 set(hX, 'XData', Xn(1,:), 'YData', Xn(2,:), 'CData', colors(w));
+uistack(hz, 'top');
 
 %% Show distance to each particle.
 
@@ -126,6 +127,8 @@ line_colors = colors(wt).' * [1 1 1];
 for k = 1:nX
     set(ht(k), 'Color', line_colors(k,:));
 end
+[~, si] = sort(wt, 'descend');
+uistack(ht(si), 'top');
 
 %% Show weighted average.
 
@@ -158,6 +161,8 @@ for k = 1:nX
     set(ht(k), 'XData', xt{k}(1,:), 'YData', xt{k}(2,:), ...
         'Color', line_colors(k,:));
 end
+[~, si] = sort(wt, 'descend');
+uistack(ht(si), 'top');
 
 %% Update weights again.
 
@@ -174,6 +179,8 @@ line_colors = colors(wt).' * [1 1 1];
 for k = 1:nX
     set(ht(k), 'Color', line_colors(k,:));
 end
+[~, si] = sort(wt, 'descend');
+uistack(ht(si), 'top');
 
 %% Resample and regularize.
 

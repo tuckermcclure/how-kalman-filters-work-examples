@@ -68,21 +68,18 @@ function kalman_gain_demo(make_gif)
     hold on;
     hx0 = scatter(x0(1), x0(2), 100, 'o', 'CData', blue);
     hold off;
-    caxis([0 max(w)]);
+    clim = [-0.05 1] * max(w);
+    caxis(clim);
     axis equal;
     axis(2*[-1 1 -1 1]);
     title('State Space');
     xlabel('x_1');
     ylabel('x_2');
     % legend([hx0 hs1], 'Predicted State', 'Prediction Covariance');
-
-    % Initial predicted measurement and particles
+    
+    % Observation space
     subplot(1, 2, 2);
-    hs2 = scatter(Z(1,:), Z(2,:), [], w0, '.');
-    hold on;
-    hz0 = scatter(zhat0(1), zhat0(2), 100, 'o', 'CData', red);
-    hold off;
-    caxis([0 max(w)]);
+    caxis(clim);
     axis equal;
     axis(2*[-1 1 -1 1]);
     title('Observation Space');
@@ -111,6 +108,22 @@ function kalman_gain_demo(make_gif)
 
     % Look at the initial plot for a moment.
     pause(1);
+    
+    % Initial predicted measurement
+    subplot(1, 2, 2);
+    hold on;
+    hz0 = scatter(zhat0(1), zhat0(2), 100, 'o', 'CData', red);
+    
+    pause(1);
+    store_frame(1);
+    
+    % Initial particles
+    hs2 = scatter(Z(1,:), Z(2,:), [], w0, '.');
+    uistack(hz0, 'top');
+    hold off;
+    
+    pause(1);
+    store_frame(1);
     
     % Animation parameters
     ns = 25;   % Number of steps to take per animation
