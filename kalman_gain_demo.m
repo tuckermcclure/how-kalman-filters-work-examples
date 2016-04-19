@@ -1,5 +1,28 @@
 function kalman_gain_demo(make_gif)
 
+% kalman_gain_demo
+%
+% This function creates an animation of the correction of the covariance
+% with the Kalman gain. It shows:
+% 
+% * the predicted state and covariance, shown as particles,
+% * the predicted measurement,
+% * the covariance of the predicted measurement (also particles),
+% * the additional covariance of the measurement noise, yielding the
+%   innovation covariance,
+% * the new measurement,
+% * the likelihood of each particle in observation space (just for show),
+% * the likelihood of each particle in state space (also for show),
+% * the Kalman correction of the predicted state,
+% * and the corresponding correction of the covariance, showing it narrow
+%   in on the corrected state (and, just for fun, the corresponding motion
+%   of the particles in observation space).
+%
+% When the input argument is true, this function will create an animated
+% GIF in the 'animations' folder.
+
+% Copyright 2016 An Uncommon Lab
+
     % By default, don't make the GIF.
     if nargin < 1, make_gif = false; end;
 

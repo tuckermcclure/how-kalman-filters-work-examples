@@ -1,8 +1,8 @@
 %% Commands for Image Generation
 %
 % These commands are used to generate the images used in the "How Kalman
-% Filters Work" article. They use 'enjaden', an open-source project for
-% publishing MATLAB scripts to Jade syntax (a web language).
+% Filters Work" article. They use 'enjaden' from ml2jade, an open-source 
+% project for publishing MATLAB scripts to Jade syntax (a web language).
 %
 % This file is not itself part of the demonstration.
 
