@@ -224,10 +224,12 @@ delete(hPzz);
 % Create the corrected ellipse.
 ellPk = ellipse(P(:,:,2), xh(:,2));
 
+hxhkkm1 = plot(xkkm1(1), xkkm1(2), 'x', 'Color', 0.75 * [1 1 1]);
 set(hxh, 'XData', xh(1,2), 'YData', xh(2,2));
 set(hPt, 'XData', ellPk(1,:), 'YData', ellPk(2,:), 'LineStyle', '-');
-legend([hxh, hPt, hz], ...
-       'Corrected Estimate', 'Corrected Covariance', 'New Measurement');
+legend([hxhkkm1, hxh, hPt, hz], ...
+       'Predicted Estimate', 'Corrected Estimate', ...
+       'Corrected Covariance', 'New Measurement');
 
 %% Final plot and animation
 
