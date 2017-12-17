@@ -33,7 +33,13 @@ including four filters, demonstration files, and several utilities.
                matrix  
 **mndpdf**   - utility to calculate probability density for a multivariate 
                normal distribution  
+**randcov**  - utility to create a random covariance matrix
 **rk4step**  - numerically integrates a function over one time step using
                the common Runge-Kutta fourth order method  
 
-Copyright 2016 An Uncommon Lab
+For more detailed, powerful Kalman filter functions and related utilities,
+see `*kf` from:
+
+<http://www.anuncommonlab.com/starkf/>
+
+Copyright 2016-2017 An Uncommon Lab
